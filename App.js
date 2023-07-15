@@ -1,21 +1,21 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import Home from "./src/pages/Home";
+import { StyleSheet, View } from "react-native";
+import Home from "./src/pages/Home/Home";
+import styled from "styled-components";
+
+const Wrapper = styled.View`
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+`;
 
 export default function App() {
   return (
-    <View style={styles.container}>
+    <Wrapper>
       <Home />
       <StatusBar style="auto" />
-    </View>
+    </Wrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Audio } from "expo-av";
-import * as FileSystem from "expo-file-system";
-import useAudioStore from "../state/audioStore";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
+import useAudioStore from "../../state/audioStore";
+import useTranscriptStore from "../../state/transcriptStore";
+import * as S from "./RecordButtonStyles";
 
 const serverURL = "http://192.168.0.43:4000/";
 
-export default function App() {
+export default function RecordButton() {
   const recording = useRef(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState("");
+  const [isPressed, setIsPressed] = useState(false);
   const setAudioURI = useAudioStore((state) => state.setAudioURI);
+  const setTranscript = useTranscriptStore((state) => state.setTranscript);
 
   useEffect(() => {
     return () => {
@@ -76,7 +79,6 @@ export default function App() {
         });
         await FileSystem.moveAsync({ from: uri, to: fileUri });
         setAudioURI(fileUri);
-        console.log("Audio file saved:", fileUri);
 
         await getTranscription(fileUri);
       }
@@ -100,7 +102,6 @@ export default function App() {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(data);
       setTranscript(data);
     } catch (error) {
       console.error("Axios Error:", error); // Log the error to the console
@@ -109,22 +110,25 @@ export default function App() {
     }
   };
   return (
-    <View>
-      <Text>{transcript}</Text>
-      <Text>{isRecording ? "Recording..." : "Press and hold to record"}</Text>
-      <TouchableOpacity
-        onPressIn={startRecording}
-        onPressOut={stopRecording}
-        style={{
-          backgroundColor: isRecording ? "red" : "green",
-          padding: 20,
-          borderRadius: 10,
-        }}
-      >
-        <Text style={{ color: "white", fontSize: 18 }}>
-          {isRecording ? "Recording" : "Press and Hold"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <S.Wrapper>
+      <S.ButtonContainer isRecording={isRecording}>
+        <S.TouchableOpacity
+          onPressOut={stopRecording}
+          isRecording={isRecording}
+          isPressed={isPressed}
+          onPressIn={() => {
+            setIsPressed(true);
+            setTimeout(() => {
+              setIsPressed(false);
+              startRecording();
+            }, 100);
+          }}
+        >
+          <S.ButtonText isRecording={isRecording}>
+            {isRecording ? "Ask me something.." : "Press and Hold"}
+          </S.ButtonText>
+        </S.TouchableOpacity>
+      </S.ButtonContainer>
+    </S.Wrapper>
   );
 }
