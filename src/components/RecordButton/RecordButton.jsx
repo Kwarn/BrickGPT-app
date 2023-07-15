@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
 import { Audio } from "expo-av";
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
@@ -10,11 +9,11 @@ import * as S from "./RecordButtonStyles";
 const serverURL = "http://192.168.0.43:4000/";
 
 export default function RecordButton() {
-  const recording = useRef(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPressed, setIsPressed] = useState(false);
-  const setAudioURI = useAudioStore((state) => state.setAudioURI);
+  const [isRecording, setIsRecording] = useAudioStore((state) => [state.isRecording, state.setIsRecording]);
   const setTranscript = useTranscriptStore((state) => state.setTranscript);
+  const setAudioURI = useAudioStore((state) => state.setAudioURI);
+  const [isPressed, setIsPressed] = useState(false);
+  const recording = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -50,8 +49,6 @@ export default function RecordButton() {
         },
       });
       await recording.current.startAsync();
-
-      console.log("Recording started");
       setIsRecording(true);
     } catch (error) {
       console.log("Failed to start recording", error);
@@ -106,7 +103,6 @@ export default function RecordButton() {
     } catch (error) {
       console.error("Axios Error:", error); // Log the error to the console
       console.log("Axios Error Response:", error.response); // Log the detailed error response
-      throw error; // Rethrow the error to handle it in the calling code
     }
   };
   return (

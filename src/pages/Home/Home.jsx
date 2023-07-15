@@ -3,6 +3,7 @@ import RecordButton from "../../components/RecordButton/RecordButton";
 import AudioPlayer from "../../components/AudioPlayer";
 import useTranscriptStore from "../../state/transcriptStore";
 import Transcript from "../../components/Transcript/Transcript";
+import useAudioStore from "../../state/audioStore";
 
 const Wrapper = styled.View`
   display: flex;
@@ -16,11 +17,12 @@ const Wrapper = styled.View`
 
 export default function Home() {
   const transcript = useTranscriptStore((state) => state.transcript);
+  const isRecording = useAudioStore((state) => state.isRecording)
   console.log(transcript)
   return (
     <Wrapper>
       <RecordButton />
-      {transcript && <Transcript transcript={transcript} />}
+      {transcript && !isRecording && <Transcript transcript={transcript} />}
       {/* <AudioPlayer /> */}
     </Wrapper>
   );
