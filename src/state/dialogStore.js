@@ -6,6 +6,7 @@ const useDialogStore = create((set) => ({
     set((state) => ({
       conversations: [...state.conversations, conversation],
     })),
+  clearConversations: () => set(() => ({ conversations: null })),
 }));
 
 export default useDialogStore;

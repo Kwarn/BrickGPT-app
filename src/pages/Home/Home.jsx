@@ -4,6 +4,7 @@ import AudioPlayer from "../../components/AudioPlayer/AudioPlayer";
 import useAudioStore from "../../state/audioStore";
 import DialogBox from "../../components/Dialog/DialogBox";
 import useAppStore from "../../state/appStore";
+import ClearConversationsButton from "../../components/ClearConversationsButton/ClearConversationsButton";
 
 const Wrapper = styled.View`
   display: flex;
@@ -14,16 +15,25 @@ const Wrapper = styled.View`
   height: 100%;
   background-color: "#000000";
 `;
+const ButtonContainer = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+`;
 
 export default function Home() {
   const audioURI = null;
   const isRecording = useAudioStore((state) => state.isRecording);
-  const isAwaitingResponse = useAppStore((state) => state.isAwaitingResponse)
+  const isAwaitingResponse = useAppStore((state) => state.isAwaitingResponse);
 
   return (
     <Wrapper>
       <DialogBox isAwaitingResponse={isAwaitingResponse} />
-      <RecordButton isAwaitingResponse={isAwaitingResponse} />
+      <ButtonContainer>
+        <RecordButton isAwaitingResponse={isAwaitingResponse} />
+        <ClearConversationsButton />
+      </ButtonContainer>
       {audioURI && <AudioPlayer audioURI={audioURI} />}
     </Wrapper>
   );
