@@ -2,16 +2,20 @@ import React, { useState, useEffect, useRef } from "react";
 import { Audio } from "expo-av";
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
+import { removeNewLineCharacters } from "../../utils/formatting";
 import useAudioStore from "../../state/audioStore";
-import useTranscriptStore from "../../state/transcriptStore";
+import useDialogStore from "../../state/dialogStore";
 import * as S from "./RecordButtonStyles";
 
 const serverURL = "http://192.168.0.43:4000/";
 
 export default function RecordButton() {
-  const [isRecording, setIsRecording] = useAudioStore((state) => [state.isRecording, state.setIsRecording]);
-  const setTranscript = useTranscriptStore((state) => state.setTranscript);
-  const setAudioURI = useAudioStore((state) => state.setAudioURI);
+  const [isRecording, setIsRecording] = useAudioStore((state) => [
+    state.isRecording,
+    state.setIsRecording,
+  ]);
+  const setConversations = useDialogStore((state) => state.setConversations);
+  const setRecordingURI = useAudioStore((state) => state.setRecordingURI);
   const [isPressed, setIsPressed] = useState(false);
   const recording = useRef(null);
 
@@ -57,7 +61,6 @@ export default function RecordButton() {
 
   const stopRecording = async () => {
     try {
-      setIsRecording(false);
       if (recording.current !== null) {
         if (!recording?.current) {
           throw new Error("No current recording found");
@@ -75,7 +78,7 @@ export default function RecordButton() {
           intermediates: true,
         });
         await FileSystem.moveAsync({ from: uri, to: fileUri });
-        setAudioURI(fileUri);
+        setRecordingURI(fileUri);
 
         await getTranscription(fileUri);
       }
@@ -94,12 +97,21 @@ export default function RecordButton() {
         type: "audio/m4a",
       });
 
-      const { data } = await axios.post(serverURL, formData, {
+      const {
+        data: { transcript, chat },
+      } = await axios.post(serverURL, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      setTranscript(data);
+      console.log(transcript, chat);
+      if (transcript && chat) {
+        console.log("prompt and response recieved");
+        setConversations({
+          user: removeNewLineCharacters(transcript),
+          ai: removeNewLineCharacters(chat),
+        });
+      }
     } catch (error) {
       console.error("Axios Error:", error); // Log the error to the console
       console.log("Axios Error Response:", error.response); // Log the detailed error response

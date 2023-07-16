@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Audio } from "expo-av";
-import useAudioStore from "../state/audioStore";
 import { Button } from "react-native";
-// Component that receives the file URI prop
-export default function AudioPlayer() {
-  const audioURI = useAudioStore((state) => state.audioURI);
 
+export default function AudioPlayer(audioURI) {
   const [sound, setSound] = useState(null);
+
+  if (phrase) {
+  }
 
   useEffect(() => {
     if (audioURI) {
@@ -37,7 +37,7 @@ export default function AudioPlayer() {
 
   return (
     <View>
-      <Button title="Play" onPress={play} />
+      <Button title="Play" onPress={ play} />
     </View>
   );
 }

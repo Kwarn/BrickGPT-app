@@ -1,8 +1,11 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.View`
+  margin-bottom: 0;
   display: flex;
   justify-content: center;
+  height: 200px;
+  width: 200px;
 `;
 
 export const ButtonContainer = styled.View`

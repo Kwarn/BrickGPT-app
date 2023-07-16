@@ -1,14 +1,13 @@
 import styled from "styled-components";
 import RecordButton from "../../components/RecordButton/RecordButton";
-import AudioPlayer from "../../components/AudioPlayer";
-import useTranscriptStore from "../../state/transcriptStore";
-import Transcript from "../../components/Transcript/Transcript";
+import AudioPlayer from "../../components/AudioPlayer/AudioPlayer";
 import useAudioStore from "../../state/audioStore";
+import DialogBox from "../../components/Dialog/DialogBox";
 
 const Wrapper = styled.View`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 100%;
@@ -16,14 +15,14 @@ const Wrapper = styled.View`
 `;
 
 export default function Home() {
-  const transcript = useTranscriptStore((state) => state.transcript);
-  const isRecording = useAudioStore((state) => state.isRecording)
-  console.log(transcript)
+  const audioURI = null;
+  const isRecording = useAudioStore((state) => state.isRecording);
+
   return (
     <Wrapper>
+      <DialogBox />
       <RecordButton />
-      {transcript && !isRecording && <Transcript transcript={transcript} />}
-      {/* <AudioPlayer /> */}
+      {audioURI && <AudioPlayer audioURI={audioURI} />}
     </Wrapper>
   );
 }
