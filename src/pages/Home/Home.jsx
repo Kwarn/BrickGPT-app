@@ -3,6 +3,7 @@ import RecordButton from "../../components/RecordButton/RecordButton";
 import AudioPlayer from "../../components/AudioPlayer/AudioPlayer";
 import useAudioStore from "../../state/audioStore";
 import DialogBox from "../../components/Dialog/DialogBox";
+import useAppStore from "../../state/appStore";
 
 const Wrapper = styled.View`
   display: flex;
@@ -17,11 +18,12 @@ const Wrapper = styled.View`
 export default function Home() {
   const audioURI = null;
   const isRecording = useAudioStore((state) => state.isRecording);
+  const isAwaitingResponse = useAppStore((state) => state.isAwaitingResponse)
 
   return (
     <Wrapper>
-      <DialogBox />
-      <RecordButton />
+      <DialogBox isAwaitingResponse={isAwaitingResponse} />
+      <RecordButton isAwaitingResponse={isAwaitingResponse} />
       {audioURI && <AudioPlayer audioURI={audioURI} />}
     </Wrapper>
   );

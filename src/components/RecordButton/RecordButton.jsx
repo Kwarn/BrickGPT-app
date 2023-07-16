@@ -6,6 +6,7 @@ import { removeNewLineCharacters } from "../../utils/formatting";
 import useAudioStore from "../../state/audioStore";
 import useDialogStore from "../../state/dialogStore";
 import * as S from "./RecordButtonStyles";
+import useAppStore from "../../state/appStore";
 
 const serverURL = "http://192.168.0.43:4000/";
 
@@ -16,6 +17,10 @@ export default function RecordButton() {
   ]);
   const setConversations = useDialogStore((state) => state.setConversations);
   const setRecordingURI = useAudioStore((state) => state.setRecordingURI);
+  const [isAwaitingResponse, setIsAwaitingResponse] = useAppStore((state) => [
+    isAwaitingResponse,
+    state.setIsAwaitingResponse,
+  ]);
   const [isPressed, setIsPressed] = useState(false);
   const recording = useRef(null);
 
@@ -90,6 +95,7 @@ export default function RecordButton() {
 
   const getTranscription = async (uri) => {
     try {
+      setIsAwaitingResponse(true);
       const formData = new FormData();
       formData.append("file", {
         uri,
@@ -112,7 +118,9 @@ export default function RecordButton() {
           ai: removeNewLineCharacters(chat),
         });
       }
+      setIsAwaitingResponse(false);
     } catch (error) {
+      setIsAwaitingResponse(false);
       console.error("Axios Error:", error); // Log the error to the console
       console.log("Axios Error Response:", error.response); // Log the detailed error response
     }
@@ -121,7 +129,7 @@ export default function RecordButton() {
     <S.Wrapper>
       <S.ButtonContainer isRecording={isRecording}>
         <S.TouchableOpacity
-          onPressOut={stopRecording}
+          disabled={isAwaitingResponse}
           isRecording={isRecording}
           isPressed={isPressed}
           onPressIn={() => {
@@ -131,6 +139,7 @@ export default function RecordButton() {
               startRecording();
             }, 100);
           }}
+          onPressOut={stopRecording}
         >
           <S.ButtonText isRecording={isRecording}>
             {isRecording ? "Ask me something.." : "Press and Hold"}
