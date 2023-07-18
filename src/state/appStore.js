@@ -1,9 +1,8 @@
 import { create } from "zustand";
 
 const useAppStore = create((set) => ({
-  isAwaitingResponse: null,
-  setIsAwaitingResponse: (isAwaitingResponse) =>
-    set(() => ({ isAwaitingResponse })),
+  awaitingResponseFor: null,
+  setAwaitingResponseFor: (who) => set(() => ({ awaitingResponseFor: who })),
 }));
 
 export default useAppStore;

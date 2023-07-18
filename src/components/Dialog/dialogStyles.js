@@ -9,6 +9,7 @@ export const Wrapper = styled.View`
   display: flex;
   justify-content: center;
   width: 100%;
+  flex: 1;
   align-items: center;
 `;
 
@@ -44,4 +45,15 @@ export const AiText = styled.Text`
   color: white;
   background: #968fd6;
   margin-left: 40px;
+`;
+
+export const Timestamp = styled.Text`
+  position: absolute;
+  overflow: visible;
+  ${({ left }) => left && `left: ${left}px;`}
+  ${({ left }) => left && `left: ${left}px;`}
+  color: white;
+  top: -15px;
+  z-index: 99;
+  font-size: 8px;
 `;

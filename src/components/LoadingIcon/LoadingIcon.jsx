@@ -6,18 +6,25 @@ const Container = styled.View`
   display: flex;
   justify-content: center;
   flex-direction: row;
-  margin: 25px auto auto 20px;
+  margin: ${(props) =>
+    props.iconPosition === "left"
+      ? "25px auto auto 40px"
+      : "25px 40px auto auto"};
 `;
 
 const Ball = styled(Animated.View)`
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  margin: 5px 0 5px 0;
+  margin: ${(props) =>
+    props.iconPosition === "left"
+      ? "5px auto 5px auto"
+      : "5px 5px auto auto"};
   background-color: white;
 `;
 
-const LoadingIcon = () => {
+const LoadingIcon = ({ position }) => {
+  console.log("loading icon, position", position);
   const animation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -48,7 +55,7 @@ const LoadingIcon = () => {
         {
           translateX: animation.interpolate({
             inputRange: [0, 1],
-            outputRange: [0, 20 * index],
+            outputRange: [0, 15 * index],
           }),
         },
       ],
@@ -57,9 +64,13 @@ const LoadingIcon = () => {
   };
 
   return (
-    <Container>
+    <Container iconPosition={position}>
       {[0, 1, 2].map((index) => (
-        <Ball key={index} style={interpolateBallStyles(index)} />
+        <Ball
+          key={index}
+          style={interpolateBallStyles(index)}
+          iconPosition={position}
+        />
       ))}
     </Container>
   );
