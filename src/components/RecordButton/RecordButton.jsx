@@ -1,28 +1,55 @@
 import React, { useState, useEffect, useRef } from "react";
+import uuid from "react-native-uuid";
 import { Audio } from "expo-av";
-import axios from "axios";
 import * as FileSystem from "expo-file-system";
-import { removeNewLineCharacters } from "../../utils/formatting";
-import useAudioStore from "../../state/audioStore";
-import useDialogStore from "../../state/dialogStore";
-import * as S from "./RecordButtonStyles";
+import useAskAI from "../../api/useAskAI";
+import useTranscribe from "../../api/useTranscribe";
 import useAppStore from "../../state/appStore";
-
-const serverURL = "http://192.168.0.43:4000/";
+import useDialogStore from "../../state/dialogStore";
+import useAudioStore from "../../state/audioStore";
+import { getTimeStamp } from "../../utils/getTimeStamp";
+import * as S from "./RecordButtonStyles";
 
 export default function RecordButton() {
   const [isRecording, setIsRecording] = useAudioStore((state) => [
     state.isRecording,
     state.setIsRecording,
   ]);
-  const setConversations = useDialogStore((state) => state.setConversations);
-  const setRecordingURI = useAudioStore((state) => state.setRecordingURI);
-  const [isAwaitingResponse, setIsAwaitingResponse] = useAppStore((state) => [
-    isAwaitingResponse,
-    state.setIsAwaitingResponse,
+  const [
+    currentConversationId,
+    setCurrentConversationId,
+    setConversations,
+    updateConversation,
+  ] = useDialogStore((state) => [
+    state.currentConversationId,
+    state.setCurrentConversationId,
+    state.setConversations,
+    state.updateConversation,
   ]);
+  const setRecordingURI = useAudioStore((state) => state.setRecordingURI);
+  const isAwaitingResponse = useAppStore((state) => state.isAwaitingResponse);
   const [isPressed, setIsPressed] = useState(false);
   const recording = useRef(null);
+  const { transcript, transcribe } = useTranscribe();
+  const { aiResponse, askAI } = useAskAI();
+
+  useEffect(() => {
+    if (transcript) {
+      setCurrentConversationId(uuid.v4());
+      setConversations({
+        id: currentConversationId,
+        user: { text: transcript, timestamp: getTimeStamp() },
+      });
+    }
+  }, [transcript]);
+
+  useEffect(() => {
+    if (aiResponse) {
+      updateConversation(currentConversationId, {
+        ai: { text: aiResponse, timestamp: getTimeStamp() },
+      });
+    }
+  }, [transcript]);
 
   useEffect(() => {
     return () => {
@@ -57,9 +84,10 @@ export default function RecordButton() {
           audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
         },
       });
-      await recording.current.startAsync();
       setIsRecording(true);
+      await recording.current.startAsync();
     } catch (error) {
+      setIsRecording(false);
       console.log("Failed to start recording", error);
     }
   };
@@ -72,8 +100,8 @@ export default function RecordButton() {
         }
         await recording.current.stopAndUnloadAsync();
         setIsRecording(false);
-        const uri = recording.current.getURI();
 
+        const uri = recording.current.getURI();
         const info = await FileSystem.getInfoAsync(uri);
         const filename = info.uri.split("/").pop();
 
@@ -83,9 +111,14 @@ export default function RecordButton() {
           intermediates: true,
         });
         await FileSystem.moveAsync({ from: uri, to: fileUri });
-        setRecordingURI(fileUri);
 
-        await getTranscription(fileUri);
+        setRecordingURI(fileUri);
+        await transcribe(fileUri);
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+        console.log(transcript);
+        if (transcript) {
+          await askAI(transcript);
+        }
       }
     } catch (error) {
       setIsRecording(false);
@@ -93,38 +126,6 @@ export default function RecordButton() {
     }
   };
 
-  const getTranscription = async (uri) => {
-    try {
-      setIsAwaitingResponse(true);
-      const formData = new FormData();
-      formData.append("file", {
-        uri,
-        name: "audio.m4a",
-        type: "audio/m4a",
-      });
-
-      const {
-        data: { transcript, chat },
-      } = await axios.post(serverURL, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      console.log(transcript, chat);
-      if (transcript && chat) {
-        console.log("prompt and response recieved");
-        setConversations({
-          user: removeNewLineCharacters(transcript),
-          ai: removeNewLineCharacters(chat),
-        });
-      }
-      setIsAwaitingResponse(false);
-    } catch (error) {
-      setIsAwaitingResponse(false);
-      console.error("Axios Error:", error); // Log the error to the console
-      console.log("Axios Error Response:", error.response); // Log the detailed error response
-    }
-  };
   return (
     <S.Wrapper>
       <S.ButtonContainer isRecording={isRecording}>

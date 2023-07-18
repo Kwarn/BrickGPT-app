@@ -24,7 +24,7 @@ const ButtonContainer = styled.View`
 
 export default function Home() {
   const audioURI = null;
-  const isRecording = useAudioStore((state) => state.isRecording);
+  const recordingURI = useAudioStore((state) => state.recordingURI);
   const isAwaitingResponse = useAppStore((state) => state.isAwaitingResponse);
 
   return (
@@ -34,7 +34,7 @@ export default function Home() {
         <RecordButton isAwaitingResponse={isAwaitingResponse} />
         <ClearConversationsButton />
       </ButtonContainer>
-      {audioURI && <AudioPlayer audioURI={audioURI} />}
+      {audioURI && <AudioPlayer audioURI={recordingURI} />}
     </Wrapper>
   );
 }

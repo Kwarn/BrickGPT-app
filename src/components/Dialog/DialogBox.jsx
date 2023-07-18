@@ -27,9 +27,19 @@ export default function DialogBox({ isAwaitingResponse }) {
       <ScrollView>
         {conversations &&
           conversations.map((conversation, index) => (
-            <S.ConversationContainer key={index}>
-              <UserDialog text={conversation.user} />
-              <AiDialog text={conversation.ai} />
+            <S.ConversationContainer key={conversation.id}>
+              {conversation.user && (
+                <UserDialog
+                  text={conversation.user.text}
+                  timestamp={conversation.user.timestamp}
+                />
+              )}
+              {conversation.ai && (
+                <AiDialog
+                  text={conversation.ai.text}
+                  timestamp={conversation.ai.timestamp}
+                />
+              )}
             </S.ConversationContainer>
           ))}
         {isAwaitingResponse && <LoadingIcon />}
