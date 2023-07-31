@@ -1,21 +1,60 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ScrollView } from "react-native";
+import { getTimeStamp } from '../../utils/getTimeStamp'
+import { transcribe } from "../../api/transcribeSpeech";
+import { askAI } from '../../api/askAi'
+import LoadingIcon from "../LoadingIcon/LoadingIcon";
+import useDialogStore from "../../state/dialogStore";
 import UserDialog from "./UserDialog";
 import AiDialog from "./AiDialog";
-import useDialogStore from "../../state/dialogStore";
 import * as S from "./dialogStyles";
-import LoadingIcon from "../LoadingIcon/LoadingIcon";
-import useAppStore from "../../state/appStore";
+import uuid from "react-native-uuid";
 
-export default function DialogBox() {
+export default function DialogBox({ recordingUri }) {
+  const [awaitingResponseFor, setAwaitingResponseFor] = useState(null)
   const scrollViewRef = useRef(null);
-  const conversations = useDialogStore((state) => state.conversations);
-  const awaitingResponseFor = useAppStore((state) => state.awaitingResponseFor);
-  console.log('dialog', awaitingResponseFor)
+
+  const [
+    conversations,
+    currentConversationId,
+    setCurrentConversationId,
+    setConversations,
+    updateConversation,
+  ] = useDialogStore((state) => [
+    state.conversations,
+    state.currentConversationId,
+    state.setCurrentConversationId,
+    state.setConversations,
+    state.updateConversation,
+  ]);
+
+  console.log(conversations)
+
+  useEffect(() => {
+    const start = async () => {
+      if (recordingUri) await handleConversation(recordingUri)
+    }
+    start()
+  }, [recordingUri])
+
 
   useEffect(() => {
     scrollToEnd();
   }, [conversations, awaitingResponseFor]);
+
+  const createConverstation = (transcript) => {
+    setCurrentConversationId(uuid.v4());
+    setConversations({
+      id: currentConversationId,
+      user: { text: transcript, timestamp: getTimeStamp() },
+    });
+  };
+
+  const updateConversationWithAiResponse = (aiResponse) => {
+    updateConversation(currentConversationId, {
+      ai: { text: aiResponse, timestamp: getTimeStamp() },
+    });
+  };
 
   const scrollToEnd = () => {
     if (scrollViewRef.current) {
@@ -25,13 +64,32 @@ export default function DialogBox() {
     }
   };
 
+  const handleConversation = async (fileUri) => {
+    try {
+      setAwaitingResponseFor("user");
+      const transcript = await transcribe(fileUri);
+      console.log(transcript)
+      setAwaitingResponseFor(null);
+
+      createConverstation(transcript);
+
+      setAwaitingResponseFor("ai");
+      const aiResponse = await askAI(transcript);
+      updateConversationWithAiResponse(aiResponse);
+
+      setAwaitingResponseFor(null);
+    } catch (e) {
+      setAwaitingResponseFor(null);
+    }
+  };
+
   const loadingIconPosition = awaitingResponseFor === 'user' ? 'left' : 'right'
 
   return (
     <S.DialogBoxWrapper ref={scrollViewRef}>
       <ScrollView>
         {conversations &&
-          conversations.map((conversation, index) => (
+          conversations.map((conversation) => (
             <S.ConversationContainer key={conversation.id}>
               {conversation.user && (
                 <UserDialog

@@ -1,7 +1,6 @@
+import React, { useState } from 'react'
 import styled from "styled-components";
 import RecordButton from "../../components/RecordButton/RecordButton";
-import AudioPlayer from "../../components/AudioPlayer/AudioPlayer";
-import useAudioStore from "../../state/audioStore";
 import DialogBox from "../../components/Dialog/DialogBox";
 import ClearConversationsButton from "../../components/ClearConversationsButton/ClearConversationsButton";
 
@@ -22,17 +21,15 @@ const ButtonContainer = styled.View`
 `;
 
 export default function Assistant() {
-  const audioURI = null;
-  const recordingURI = useAudioStore((state) => state.recordingURI);
+  const [recordingUri, setRecordingUri] = useState('')
 
   return (
     <Wrapper>
-      <DialogBox />
+      <DialogBox recordingUri={recordingUri} />
       <ButtonContainer>
-        <RecordButton />
+        <RecordButton callback={(fileUri) => setRecordingUri(fileUri)} />
         <ClearConversationsButton />
       </ButtonContainer>
-      {audioURI && <AudioPlayer audioURI={recordingURI} />}
     </Wrapper>
   );
 }

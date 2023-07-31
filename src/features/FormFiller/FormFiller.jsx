@@ -1,3 +1,4 @@
+import React, { useState } from 'react'
 import styled from "styled-components";
 import RecordButton from "../../components/RecordButton/RecordButton";
 import Form from '../../components/Form/Form'
@@ -19,11 +20,12 @@ const ButtonContainer = styled.View`
 `;
 
 export default function FormFiller() {
+  const [rcordingUri, setRecordingUri] = useState()
   return (
     <Wrapper>
       <Form />
       <ButtonContainer>
-        <RecordButton />
+        <RecordButton callback={(fileUri) => setRecordingUri(fileUri)} />
       </ButtonContainer>
     </Wrapper>
   );

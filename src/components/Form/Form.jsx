@@ -20,22 +20,6 @@ const VoiceInputForm = () => {
     }
   };
 
-  const stopRecognition = async () => {
-    try {
-      await Voice.stop();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const onSpeechStart = (e) => {
-    // Do something when speech recognition starts (optional)
-  };
-
-  const onSpeechEnd = (e) => {
-    // Do something when speech recognition ends (optional)
-  };
-
   const onSpeechResults = (e) => {
     setInputValue(e.value[0]);
   };
@@ -69,11 +53,6 @@ const VoiceInputForm = () => {
         </Text>
       </TouchableOpacity>
       <Button title="Submit" onPress={handleSubmit} />
-      <Voice
-        onSpeechStart={onSpeechStart}
-        onSpeechEnd={onSpeechEnd}
-        onSpeechResults={onSpeechResults}
-      />
     </View>
   );
 };

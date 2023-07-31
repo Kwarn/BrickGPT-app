@@ -1,70 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
-import uuid from "react-native-uuid";
+import React, { useEffect, useState, useRef } from "react";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
-import { askAI } from "../../api/askAi";
-import { transcribe } from "../../api/transcribeSpeech";
-import useAppStore from "../../state/appStore";
-import useDialogStore from "../../state/dialogStore";
 import useAudioStore from "../../state/audioStore";
-import { getTimeStamp } from "../../utils/getTimeStamp";
 import * as S from "./RecordButtonStyles";
 
-export default function RecordButton() {
+export default function RecordButton({ callback }) {
   const [isRecording, setIsRecording] = useAudioStore((state) => [
     state.isRecording,
     state.setIsRecording,
   ]);
-  const [
-    currentConversationId,
-    setCurrentConversationId,
-    setConversations,
-    updateConversation,
-  ] = useDialogStore((state) => [
-    state.currentConversationId,
-    state.setCurrentConversationId,
-    state.setConversations,
-    state.updateConversation,
-  ]);
-  const setRecordingURI = useAudioStore((state) => state.setRecordingURI);
-  const [awaitingResponseFor, setAwaitingResponseFor] = useAppStore((state) => [
-    state.awaitingResponseFor,
-    state.setAwaitingResponseFor,
-  ]);
   const [isPressed, setIsPressed] = useState(false);
   const recording = useRef(null);
-
-  const handleConversation = async (fileUri) => {
-    try {
-      setAwaitingResponseFor("user");
-      const transcript = await transcribe(fileUri);
-      setAwaitingResponseFor(null);
-
-      createConverstation(transcript);
-
-      setAwaitingResponseFor("ai");
-      const aiResponse = await askAI(transcript);
-      updateConversationWithAiResponse(aiResponse);
-
-      setAwaitingResponseFor(null);
-    } catch (e) {
-      setAwaitingResponseFor(null);
-    }
-  };
-
-  const createConverstation = (transcript) => {
-    setCurrentConversationId(uuid.v4());
-    setConversations({
-      id: currentConversationId,
-      user: { text: transcript, timestamp: getTimeStamp() },
-    });
-  };
-
-  const updateConversationWithAiResponse = (aiResponse) => {
-    updateConversation(currentConversationId, {
-      ai: { text: aiResponse, timestamp: getTimeStamp() },
-    });
-  };
 
   useEffect(() => {
     return () => {
@@ -126,9 +72,7 @@ export default function RecordButton() {
           intermediates: true,
         });
         await FileSystem.moveAsync({ from: uri, to: fileUri });
-
-        await setRecordingURI(fileUri);
-        await handleConversation(fileUri);
+        callback(fileUri)
       }
     } catch (error) {
       setIsRecording(false);
@@ -140,15 +84,16 @@ export default function RecordButton() {
     <S.Wrapper>
       <S.ButtonContainer isRecording={isRecording}>
         <S.TouchableOpacity
-          disabled={awaitingResponseFor}
           isRecording={isRecording}
           isPressed={isPressed}
           onPressIn={() => {
-            setIsPressed(true);
-            setTimeout(() => {
-              setIsPressed(false);
-              startRecording();
-            }, 100);
+            if (!isRecording) {
+              setIsPressed(true);
+              setTimeout(() => {
+                setIsPressed(false);
+                startRecording();
+              }, 100);
+            }
           }}
           onPressOut={stopRecording}
         >
