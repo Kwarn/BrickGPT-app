@@ -3,7 +3,7 @@ import { Animated } from "react-native";
 import styled from "styled-components/native";
 
 const Container = styled.View`
-  display: flex;
+  flex: 1;
   justify-content: center;
   flex-direction: row;
   margin: ${(props) =>

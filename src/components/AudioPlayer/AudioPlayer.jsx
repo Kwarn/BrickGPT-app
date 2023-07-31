@@ -1,13 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Button } from "react-native";
 import { Audio } from "expo-av";
-import { Button } from "react-native";
 
 export default function AudioPlayer(audioURI) {
   const [sound, setSound] = useState(null);
-
-  if (phrase) {
-  }
 
   useEffect(() => {
     if (audioURI) {
@@ -37,7 +33,7 @@ export default function AudioPlayer(audioURI) {
 
   return (
     <View>
-      <Button title="Play" onPress={ play} />
+      <Button title="Play" onPress={play} />
     </View>
   );
 }

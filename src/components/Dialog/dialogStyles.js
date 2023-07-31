@@ -6,7 +6,7 @@ const widthMinus30 = screenWidth - 40;
 
 export const Wrapper = styled.View`
   margin-top: 20px;
-  display: flex;
+  flex: 1;
   justify-content: center;
   width: 100%;
   flex: 1;
@@ -15,13 +15,13 @@ export const Wrapper = styled.View`
 
 export const DialogBoxWrapper = styled.ScrollView`
   margin-top: 50px;
-  display: flex;
+  flex: 1;
   width: 100%;
 `;
 
 export const ConversationContainer = styled.View`
   width: 100%;
-  display: flex;
+  flex: 1;
   justify-content: center;
 `;
 

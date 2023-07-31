@@ -2,15 +2,12 @@ import styled from "styled-components";
 
 export const Wrapper = styled.View`
   margin-bottom: 0;
-  display: flex;
   justify-content: center;
-  height: 220px;
-  width: 150px;
 `;
 
 export const ButtonContainer = styled.View`
-  display: flex;
   justify-content: center;
+  align-items: center;
   height: 150px;
   width: 150px;
   border-radius: 75px;
@@ -20,8 +17,8 @@ export const ButtonContainer = styled.View`
 `;
 
 export const TouchableOpacity = styled.TouchableOpacity`
-  display: flex;
   justify-content: center;
+  align-items: center;
   height: 150px;
   width: 150px;
   border-radius: 100px;
@@ -34,5 +31,4 @@ export const ButtonText = styled.Text`
   font-size: 20px;
   color: white;
   font-weight: 900;
-  background: ${(props) => (props.isRecording ? "#ff6666" : "#5a4fbf")};
 `;

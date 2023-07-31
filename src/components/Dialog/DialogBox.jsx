@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
+import uuid from "react-native-uuid";
 import { ScrollView } from "react-native";
-import { getTimeStamp } from '../../utils/getTimeStamp'
 import { transcribe } from "../../api/transcribeSpeech";
 import { askAI } from '../../api/askAi'
+import { getTimeStamp } from '../../utils/getTimeStamp'
 import LoadingIcon from "../LoadingIcon/LoadingIcon";
 import useDialogStore from "../../state/dialogStore";
 import UserDialog from "./UserDialog";
 import AiDialog from "./AiDialog";
 import * as S from "./dialogStyles";
-import uuid from "react-native-uuid";
 
 export default function DialogBox({ recordingUri }) {
   const [awaitingResponseFor, setAwaitingResponseFor] = useState(null)
@@ -27,8 +27,6 @@ export default function DialogBox({ recordingUri }) {
     state.setConversations,
     state.updateConversation,
   ]);
-
-  console.log(conversations)
 
   useEffect(() => {
     const start = async () => {
@@ -68,16 +66,16 @@ export default function DialogBox({ recordingUri }) {
     try {
       setAwaitingResponseFor("user");
       const transcript = await transcribe(fileUri);
-      console.log(transcript)
       setAwaitingResponseFor(null);
 
       createConverstation(transcript);
 
       setAwaitingResponseFor("ai");
       const aiResponse = await askAI(transcript);
+      setAwaitingResponseFor(null);
+
       updateConversationWithAiResponse(aiResponse);
 
-      setAwaitingResponseFor(null);
     } catch (e) {
       setAwaitingResponseFor(null);
     }

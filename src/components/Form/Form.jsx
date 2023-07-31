@@ -1,32 +1,22 @@
-import React, { useState } from "react";
-import {
-  View,
-  TextInput,
-  Button,
-  Alert,
-  TouchableOpacity,
-  Text,
-} from "react-native";
-import Voice from "@react-native-voice/voice";
+import React, { useEffect, useState } from "react";
+import { Button, Alert } from "react-native";
+import * as S from './FormStyles'
+import { transcribe } from '../../api/transcribeSpeech'
 
-const VoiceInputForm = () => {
+const Form = ({ recordingUri }) => {
   const [inputValue, setInputValue] = useState("");
 
-  const startRecognition = async () => {
-    try {
-      await Voice.start("en-US");
-    } catch (error) {
-      console.error(error);
+  useEffect(() => {
+    const start = async () => {
+      await getTranscript()
     }
-  };
+    start()
+  }, [recordingUri])
 
-  const onSpeechResults = (e) => {
-    setInputValue(e.value[0]);
-  };
-
-  const handleInputChange = (text) => {
-    setInputValue(text);
-  };
+  const getTranscript = async () => {
+    const transcript = await transcribe(recordingUri)
+    console.log(transcript)
+  }
 
   const handleSubmit = () => {
     // Handle form submission with the input value
@@ -34,27 +24,14 @@ const VoiceInputForm = () => {
   };
 
   return (
-    <View style={{ padding: 16 }}>
-      <TextInput
-        style={{
-          height: 40,
-          borderColor: "gray",
-          borderWidth: 1,
-          marginBottom: 10,
-          paddingHorizontal: 10,
-        }}
-        onChangeText={handleInputChange}
+    <S.Wrapper style={{ padding: 16 }}>
+      <S.TextInput
         value={inputValue}
         placeholder="Type or click the mic..."
       />
-      <TouchableOpacity onPress={startRecognition}>
-        <Text style={{ color: "blue", marginBottom: 10 }}>
-          Click here and say something...
-        </Text>
-      </TouchableOpacity>
       <Button title="Submit" onPress={handleSubmit} />
-    </View>
+    </S.Wrapper>
   );
 };
 
-export default VoiceInputForm;
+export default Form;

@@ -1,22 +1,25 @@
 import React, { useRef, useState } from "react";
-import { View, ScrollView, Dimensions, StyleSheet } from "react-native";
+import { Dimensions } from "react-native";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
-import Animated from "react-native-reanimated";
+import Animated, { useValue } from "react-native-reanimated";
+import ClearConversationsButton from "../../components/ClearConversationsButton/ClearConversationsButton";
+import RecordButton from "../../components/RecordButton/RecordButton";
 import FormFiller from "../../features/FormFiller/FormFiller";
 import Assistant from "../../features/Assistant/Assistant";
+import * as S from "./HomeStyles";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function Home() {
   const scrollRef = useRef(null);
   const [activeComponentIndex, setActiveComponentIndex] = useState(0);
+  const [recordingUri, setRecordingUri] = useState();
 
-  const onGestureEvent = Animated.event(
-    [{ nativeEvent: { translationX: scrollX } }],
-    {
-      useNativeDriver: true,
-    }
-  );
+  const translationX = useValue(0);
+
+  const onGestureEvent = Animated.event([{ nativeEvent: { translationX } }], {
+    useNativeDriver: true,
+  });
 
   const onHandlerStateChange = (event) => {
     if (event.nativeEvent.oldState === State.ACTIVE) {
@@ -36,51 +39,43 @@ export default function Home() {
       const newScrollPosition = activeComponentIndex * screenWidth;
 
       // Reset the scroll position
-      scrollRef.current
-        .getNode()
-        .scrollTo({ x: newScrollPosition, animated: true });
+      scrollRef.current?.scrollTo({ x: newScrollPosition, animated: true });
     }
   };
 
-  const scrollX = useRef(new Animated.Value(0)).current;
-
   return (
-    <View style={styles.container}>
+    <S.Wrapper>
       <PanGestureHandler
         onGestureEvent={onGestureEvent}
         onHandlerStateChange={onHandlerStateChange}
       >
-        <Animated.View>
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.contentContainer}
-          >
-            <View style={styles.childContainer}>
-              <Assistant />
-            </View>
-            <View style={styles.childContainer}>
-              <FormFiller />
-            </View>
-          </ScrollView>
-        </Animated.View>
+        <S.AnimatedScrollView // Change this to Animated.ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast" // Add this line for faster scrolling
+          snapToInterval={SCREEN_WIDTH} // Add this line for snapping to each component
+          snapToAlignment="center" // Add this line for alignment
+        >
+          <S.ContentContainer>
+            <S.ChildContainer screenWidth={SCREEN_WIDTH}>
+              <Assistant
+                recordingUri={activeComponentIndex === 0 && recordingUri}
+              />
+            </S.ChildContainer>
+            <S.ChildContainer screenWidth={SCREEN_WIDTH}>
+              <FormFiller
+                recordingUri={activeComponentIndex === 1 && recordingUri}
+              />
+            </S.ChildContainer>
+          </S.ContentContainer>
+        </S.AnimatedScrollView>
       </PanGestureHandler>
-    </View>
+      <S.ButtonContainer>
+        <RecordButton callback={(uri) => setRecordingUri(uri)} />
+        <ClearConversationsButton />
+      </S.ButtonContainer>
+    </S.Wrapper>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-  },
-  contentContainer: {
-    alignItems: "center",
-  },
-  childContainer: {
-    width: SCREEN_WIDTH,
-    alignItems: "center",
-  },
-});

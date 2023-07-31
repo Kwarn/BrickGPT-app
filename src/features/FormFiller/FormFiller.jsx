@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from "styled-components";
-import RecordButton from "../../components/RecordButton/RecordButton";
 import Form from '../../components/Form/Form'
 
 const Wrapper = styled.View`
@@ -12,21 +11,11 @@ const Wrapper = styled.View`
   height: 100%;
   background-color: "#000000";
 `;
-const ButtonContainer = styled.View`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  width: 100%;
-`;
 
-export default function FormFiller() {
-  const [rcordingUri, setRecordingUri] = useState()
+export default function FormFiller({ recordingUri }) {
   return (
     <Wrapper>
-      <Form />
-      <ButtonContainer>
-        <RecordButton callback={(fileUri) => setRecordingUri(fileUri)} />
-      </ButtonContainer>
+      <Form recordingUri={recordingUri} />
     </Wrapper>
   );
 }
