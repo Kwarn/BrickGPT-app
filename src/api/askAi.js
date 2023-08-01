@@ -7,7 +7,7 @@ export const askAI = async (prompt) => {
     const {
       data: { aiResponse },
     } = await axios.post(
-      "http://192.168.0.43:4000/api/ask",
+      "http://192.168.39.9:4000/api/ask",
       { prompt },
       {
         headers: {

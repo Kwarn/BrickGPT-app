@@ -11,7 +11,7 @@ export const transcribe = async (fileUri) => {
     
     const {
       data: { transcript },
-    } = await axios.post("http://192.168.0.43:4000/api/transcribe", formData, {
+    } = await axios.post("http://192.168.39.9:4000/api/transcribe", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

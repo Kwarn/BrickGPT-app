@@ -13,6 +13,7 @@ const Wrapper = styled.View`
 `;
 
 export default function FormFiller({ recordingUri }) {
+  console.log('fired')
   return (
     <Wrapper>
       <Form recordingUri={recordingUri} />

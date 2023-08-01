@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Animated from "react-native-reanimated";
+import { PanGestureHandler } from "react-native-gesture-handler";
 
 export const Wrapper = styled.View`
   flex: 1;
@@ -11,6 +12,10 @@ export const AnimatedScrollView = styled(Animated.ScrollView)`
   width: 100%;
   flex: 1;
   flex-direction: row;
+`;
+
+export const SPanGestureHandler = styled(PanGestureHandler)`
+  flex: 1;
 `;
 
 export const ButtonContainer = styled.View`
